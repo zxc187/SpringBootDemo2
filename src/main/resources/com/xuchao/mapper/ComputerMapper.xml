@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xuchao.mapper.ComputerMapper">
+    <resultMap id="computer" type="computer">
+        <id column="id" property="id"/>
+        <result column="price" property="price"/>
+        <result column="screen" property="screen"/>
+        <result column="keyboard" property="keyboard"/>
+        <result column="mouse" property="mouse"/>
+        <result column="color" property="color"/>
+        <result column="klang" property="klang"/>
+        <association property="brand" javaType="brand">
+            <id column="brand_id" property="brand_id"/>
+            <result column="brand_name" property="brand_name"/>
+        </association>
+    </resultMap>
+    <select id="selectAllComputer" resultMap="computer">
+        select c.*,b.brand_name from t_computer c left join t_brand b on c.brand_id=b.brand_id
+    </select>
+    <select id="selectComputerById" resultMap="computer">
+        select c.*,b.brand_name from t_computer c left join t_brand b on c.brand_id=b.brand_id where id=#{id}
+    </select>
+    <delete id="deleteById">
+        delete from t_computer where id=#{id}
+    </delete>
+    <update id="updateComputer">
+        update t_computer set price=#{price},screen=#{screen},keyboard=#{keyboard},
+        mouse=#{mouse},color=#{color},klang=#{klang},brand_id=#{brand.brand_id} where id=#{id}
+    </update>
+    <delete id="deleteBatch">
+        delete from t_computer where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="addComputer">
+        insert into t_computer (price,screen,keyboard,mouse,color,klang,brand_id) values
+        (#{price},#{screen},#{keyboard},#{mouse},#{color},#{klang},#{brand.brand_id})
+    </insert>
+</mapper>
