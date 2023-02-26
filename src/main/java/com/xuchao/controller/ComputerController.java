@@ -54,7 +54,7 @@ public class ComputerController {
         page.setPageSize(pageSize);
         page.setPageNum(pageNum);
         page.setTotal((Long) computers.get("total"));
-        System.err.println(page);
+
         return page;
     }
 }
