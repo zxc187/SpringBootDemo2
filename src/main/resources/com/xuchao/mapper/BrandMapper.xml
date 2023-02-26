@@ -4,4 +4,7 @@
     <select id="selectAllBrand" resultType="brand">
         select * from t_brand
     </select>
+    <select id="selectById" resultType="brand">
+        select * from t_brand where brand_id=#{id}
+    </select>
 </mapper>

@@ -9,4 +9,5 @@ import java.util.List;
 public interface BrandMapper {
 
     List<Brand> selectAllBrand();
+    Brand selectById(Integer id);
 }

@@ -33,7 +33,7 @@
             #{id}
         </foreach>
     </delete>
-    <insert id="addComputer">
+    <insert id="addComputer" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
         insert into t_computer (price,screen,keyboard,mouse,color,klang,brand_id) values
         (#{price},#{screen},#{keyboard},#{mouse},#{color},#{klang},#{brand.brand_id})
     </insert>
