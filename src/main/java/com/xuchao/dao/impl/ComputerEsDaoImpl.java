@@ -44,7 +44,7 @@ public class ComputerEsDaoImpl implements ComputerEsDao {
 
         SearchHits hits = searchResponse.getHits();
         map.put("total",hits.getTotalHits());
-        System.err.println(hits.getTotalHits());
+
         List<Computer> computers = new ArrayList<>();
 
         for (SearchHit hit:hits){
