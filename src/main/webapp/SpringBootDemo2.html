@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/vue.js"></script>
+    <script src="js/axios-0.21.0.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+	<body>
+		<div id="app">
+			<div style="text-align: center">
+				<span style="width: 50%;">
+					<el-input type="text" v-model="searchName.content"/>
+				</span>
+				<el-button type="primary" @click="searchByKlang">搜索</el-button>
+				<el-table :data="page.list" stripe style="width: 100%" @selection-change="getIds">
+					<el-table-column type="selection"></el-table-column>
+					<el-table-column prop="id" label="编号"></el-table-column>
+					<el-table-column prop="price" label="价格"></el-table-column>
+					<el-table-column label="屏幕">
+						<template slot-scope="scope">
+							<span v-html="scope.row.screen"></span>
+						</template>
+					</el-table-column>
+					<el-table-column label="键盘">
+						<template slot-scope="scope">
+							<span v-html="scope.row.keyboard"></span>
+						</template>
+					</el-table-column>
+					<el-table-column label="鼠标">
+						<template slot-scope="scope">
+							<span v-html="scope.row.mouse"></span>
+						</template>
+					</el-table-column>
+					<el-table-column label="颜色">
+						<template slot-scope="scope">
+							<span v-html="scope.row.color"></span>
+						</template>
+					</el-table-column>
+					<el-table-column prop="klang" label="音响">
+						<template slot-scope="scope">
+							<span v-html="scope.row.klang"></span>
+						</template>
+					</el-table-column>
+					<el-table-column prop="brand.brand_name" label="品牌"></el-table-column>
+					<el-table-column label="操作" width="250">
+						<template slot-scope="scope">
+							<el-button type="danger" @click="deleteDialogClick(scope.row.id)" plain>删除</el-button>
+							<el-button type="success" @click="updateDialogClick(scope.row.id)" plain>编辑</el-button>
+							
+							<el-dialog title="删除" :visible.sync="deleteDialog" width="30%">
+							    <span>确认删除？</span>
+							    <span slot="footer" class="dialog-footer">
+							        <el-button @click="deleteDialog = false">取 消</el-button>
+							        <el-button type="primary" @click="deleteComputer">确 定</el-button>
+							    </span>
+							</el-dialog>
+							<el-dialog title="编辑" :visible.sync="updateDialog" width="40%">
+							    <el-form ref="form" :model="computerItem" label-width="80px" action="">
+							        <el-form-item label="价格：">
+							            <el-input v-model="computerItem.price" ></el-input>
+							        </el-form-item>
+							        <el-form-item label="屏幕：">
+							            <el-input v-model="computerItem.screen" ></el-input>
+							        </el-form-item>
+									<el-form-item label="键盘：">
+									    <el-input v-model="computerItem.keyboard" ></el-input>
+									</el-form-item>
+									<el-form-item label="鼠标：">
+									    <el-input v-model="computerItem.mouse" ></el-input>
+									</el-form-item>
+									<el-form-item label="颜色：">
+									    <el-input v-model="computerItem.color" ></el-input>
+									</el-form-item>
+									<el-form-item label="音响">
+									    <el-input v-model="computerItem.klang" ></el-input>
+									</el-form-item>
+							        <el-form-item label="品牌:">
+										<template >
+											<el-select v-model="computerItem.brand.brand_id" placeholder="请选择">
+												<el-option v-for="item in brands" :key="item.brand_id" :label="item.brand_name" :value="item.brand_id">
+												</el-option>
+											</el-select>
+										</template>
+							        </el-form-item>
+							    </el-form>
+							    <span slot="footer" class="dialog-footer">
+							        <el-button @click="updateDialog = false">取 消</el-button>
+							        <el-button type="primary" @click="updateComputer">确 定</el-button>
+							    </span>
+							</el-dialog>
+						</template>
+					</el-table-column>
+				</el-table>
+				<el-button type="danger" plain @click="deleteBatch">一键删除</el-button>
+				
+				
+				<el-button type="success" plain @click="addUserDialog">添加员工</el-button>
+				
+				<el-dialog title="添加电脑" :visible.sync="addDialog" width="40%">
+				    <el-form ref="form" :model="computerItem" label-width="80px" action="">
+				        <el-form-item label="价格：">
+				            <el-input v-model="computerItem.price" ></el-input>
+				        </el-form-item>
+				        <el-form-item label="屏幕：">
+				            <el-input v-model="computerItem.screen" ></el-input>
+				        </el-form-item>
+				    	<el-form-item label="键盘：">
+				    	    <el-input v-model="computerItem.keyboard" ></el-input>
+				    	</el-form-item>
+				    	<el-form-item label="鼠标：">
+				    	    <el-input v-model="computerItem.mouse" ></el-input>
+				    	</el-form-item>
+				    	<el-form-item label="颜色：">
+				    	    <el-input v-model="computerItem.color" ></el-input>
+				    	</el-form-item>
+				    	<el-form-item label="音响">
+				    	    <el-input v-model="computerItem.klang" ></el-input>
+				    	</el-form-item>
+				        <el-form-item label="品牌:">
+				    		<template >
+				    			<el-select v-model="computerItem.brand.brand_id" placeholder="请选择">
+				    				<el-option v-for="item in brands" :key="item.brand_id" :label="item.brand_name" :value="item.brand_id">
+				    				</el-option>
+				    			</el-select>
+				    		</template>
+				        </el-form-item>
+					</el-form>
+				    <span slot="footer" class="dialog-footer">
+						<el-button @click="addDialog = false">取 消</el-button>
+						<el-button type="primary" @click="addUser">确 定</el-button>
+				    </span>
+				</el-dialog>
+				<el-pagination
+				      layout="sizes, prev, pager, next, jumper, ->, total"
+				      :total="page.total"
+				      :page-size.sync="page.pageSize"
+				      :page-sizes="page.pageSizes"
+				      :current-page.sync="page.pageNum"
+				      :pager-count="page.pagerCount"
+					  @size-change="handleSizeChange"
+					  @current-change="handleCurrentChange"
+				      background
+				    >
+				    </el-pagination>
+			</div>
+		</div>
+		<script type="text/javascript">
+			const vm = new Vue({
+				el:"#app",
+				data:{
+					searchName:{content:""},
+					page:{pageNum:1,pageSize:5},
+					computerItem:{brand:{}},
+					brands:[],
+					deleteDialog:false,
+					updateDialog:false,
+					addDialog:false,
+					deleteBatchSelections:[],
+					deleteBatchIds:[]
+				},
+				methods:{
+					searchByKlang(){
+						if(this.searchName.content!=""){
+							axios({
+								method:"post",
+								url:`http://localhost:8989/SpringBootDemo2/POST/search/${this.page.pageNum}/${this.page.pageSize}`,
+								data:this.searchName
+							}).then((resp)=>{
+								this.page=resp.data;
+								this.page.pagerCount=7;
+								this.page.pageSizes=[2,5,8,10,15];
+							})
+						}else{
+							this.selectBypage();
+						}
+					},
+					selectBypage(){
+						axios({
+							method:"get",
+							url:`http://localhost:8989/SpringBootDemo2/GET/computer/${this.page.pageNum}/${this.page.pageSize}`
+						}).then((resp)=>{
+							this.page=resp.data;
+							this.page.pagerCount=7;
+							this.page.pageSizes=[2,5,8,10,15]
+						})
+					},
+					addUser(){
+						axios({
+							method:"post",
+							url:"http://localhost:8989/SpringBootDemo2/POST/computer",
+							data:this.computerItem
+						}).then(()=>{
+							if(this.searchName.content==""){
+								this.selectBypage();
+							}else{
+								this.searchByKlang();
+							}
+							this.addDialog=false;
+						})
+					},
+					addUserDialog(){
+						this.computerItem={brand:{}};
+						this.selectAllBrand();
+						this.addDialog=true;
+					},
+					getIds(values){
+					    this.deleteBatchSelections = values;
+					},
+					deleteBatch(){
+					    this.deleteBatchSelections.forEach(e => {this.deleteBatchIds.push(e.id)});
+					    axios({
+					        method:"post",
+					        url:"http://localhost:8989/SpringBootDemo2/POST/computer/deleteBatch",
+					        data:this.deleteBatchIds
+					    }).then(()=>{
+					        this.deleteBatchIds=[];
+					        this.selectBypage();
+					    })
+					},
+					updateComputer(){
+						axios({
+							method:"put",
+							url:"http://localhost:8989/SpringBootDemo2/PUT/computer",
+							data:this.computerItem
+						}).then(()=>{
+							if(this.searchName.content==""){
+								this.selectBypage();
+							}else{
+								this.searchByKlang();
+							}
+							this.updateDialog=false;
+						})
+					},
+					updateDialogClick(id){
+						this.selectAllBrand();
+						this.selectComputerById(id);
+						this.computerItem.id=id;
+						this.updateDialog=true;
+					},
+					selectComputerById(id){
+						axios({
+							method:"GET",
+							url:`http://localhost:8989/SpringBootDemo2/GET/computer/${id}`
+						}).then((resp)=>{
+							this.computerItem = resp.data;
+						})
+						
+					},
+					selectAllBrand(){
+						axios({
+							method:"GET",
+							url:`http://localhost:8989/SpringBootDemo2/GET/brand`
+						}).then((resp)=>{
+							this.brands = resp.data;
+						})
+					},
+					deleteDialogClick(id){
+						this.deleteDialog=true;
+						this.computerItem.id=id;
+					},
+					deleteComputer(){
+						const id = this.computerItem.id;
+						axios({
+							method:"delete",
+							url:`http://localhost:8989/SpringBootDemo2/DELETE/computer/${id}`
+						}).then(()=>{
+							console.log(id)
+							this.selectBypage();
+							this.deleteDialog = false;
+						})
+					},
+					handleSizeChange(size){
+						this.page.pageSize=size;
+						if(this.searchName.content==""){
+							this.selectBypage();
+						}else{
+							this.searchByKlang();
+						}
+					},
+					handleCurrentChange(currentPageNum){
+						this.page.pageNum=currentPageNum;
+						if(this.searchName.content==""){
+							this.selectBypage();
+						}else{
+							this.searchByKlang();
+						}
+					}
+					
+				},
+				created: function(){
+					this.selectBypage();
+				}
+			}) 
+		</script>
+	</body>
+</html>
